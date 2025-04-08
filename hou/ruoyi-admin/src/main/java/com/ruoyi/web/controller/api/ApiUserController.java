@@ -64,15 +64,23 @@ public class ApiUserController {
                 return AjaxResult.error("未登录");
             }
 
-            // 构建SysUserProfile对象
-            SysUserProfile profile = new SysUserProfile();
-            profile.setUserId(userId);
-            profile.setNickname(user.getUserName());
-            profile.setGender(user.getSex());
-            profile.setBio(user.getRemark());
+            // 获取现有的用户资料
+            SysUserProfile existingProfile = userProfileService.selectSysUserProfileById(userId);
+            if (existingProfile == null) {
+                // 如果用户资料不存在，创建新的
+                existingProfile = new SysUserProfile();
+                existingProfile.setUserId(userId);
+            }
+
+            // 更新用户资料
+            existingProfile.setNickname(user.getUserName());
+            existingProfile.setGender(user.getSex());
+            existingProfile.setBio(user.getBio());
+            existingProfile.setAvatar(user.getAvatar());
             
-            // 调用UserMatchController的updateProfile方法
-            return userMatchController.updateProfile(profile);
+            // 直接调用userProfileService更新个人资料
+            int rows = userProfileService.updateSysUserProfile(existingProfile);
+            return rows > 0 ? AjaxResult.success() : AjaxResult.error("更新失败");
         } catch (Exception e) {
             log.error("更新用户资料时发生错误", e);
             return AjaxResult.error("更新失败：" + e.getMessage());
