@@ -2,7 +2,12 @@ package com.ruoyi.web.controller.api;
 
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.domain.entity.SysUser;
+import com.ruoyi.system.domain.SysUserProfile;
 import com.ruoyi.system.service.ISysUserService;
+import com.ruoyi.system.service.ISysUserProfileService;
+import com.ruoyi.web.controller.dating.UserMatchController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,8 +20,16 @@ import java.util.List;
 @RequestMapping("/api/users")
 public class ApiUserController {
 
+    private static final Logger log = LoggerFactory.getLogger(ApiUserController.class);
+
     @Autowired
     private ISysUserService userService;
+
+    @Autowired
+    private ISysUserProfileService userProfileService;
+
+    @Autowired
+    private UserMatchController userMatchController;
 
     /**
      * 获取用户资料
@@ -44,21 +57,26 @@ public class ApiUserController {
      */
     @PostMapping("/profile")
     public AjaxResult updateProfile(@RequestHeader("Authorization") String token, @RequestBody SysUser user) {
-        // 从token中获取用户ID
-        Long userId = getUserIdFromToken(token);
-        if (userId == null) {
-            return AjaxResult.error("未登录");
-        }
+        try {
+            // 从token中获取用户ID
+            Long userId = getUserIdFromToken(token);
+            if (userId == null) {
+                return AjaxResult.error("未登录");
+            }
 
-        // 设置用户ID
-        user.setUserId(userId);
-
-        // 更新用户信息
-        int rows = userService.updateUser(user);
-        if (rows > 0) {
-            return AjaxResult.success();
+            // 构建SysUserProfile对象
+            SysUserProfile profile = new SysUserProfile();
+            profile.setUserId(userId);
+            profile.setNickname(user.getUserName());
+            profile.setGender(user.getSex());
+            profile.setBio(user.getRemark());
+            
+            // 调用UserMatchController的updateProfile方法
+            return userMatchController.updateProfile(profile);
+        } catch (Exception e) {
+            log.error("更新用户资料时发生错误", e);
+            return AjaxResult.error("更新失败：" + e.getMessage());
         }
-        return AjaxResult.error("更新失败");
     }
 
     /**
@@ -83,16 +101,11 @@ public class ApiUserController {
      * 喜欢用户
      */
     @PostMapping("/like")
-    public AjaxResult likeUser(@RequestHeader("Authorization") String token, @RequestParam Long targetUserId) {
-        // 从token中获取用户ID
-        Long userId = getUserIdFromToken(token);
-        if (userId == null) {
-            return AjaxResult.error("未登录");
-        }
-
-        // 处理喜欢操作
-        boolean isMatch = userService.likeUser(userId, targetUserId);
-        return AjaxResult.success(isMatch);
+    @ResponseBody
+    public AjaxResult likeUser(@RequestParam("targetUserId") Long targetUserId) {
+        Long userId = getUserIdFromToken();
+        boolean isMatch = userMatchController.likeUser(userId, targetUserId);
+        return AjaxResult.success().put("isMatch", isMatch);
     }
 
     /**
@@ -112,11 +125,15 @@ public class ApiUserController {
     }
 
     /**
-     * 从token中获取用户ID
+     * 从token中获取用户ID（实际项目中需要实现）
      */
     private Long getUserIdFromToken(String token) {
-        // TODO: 实现从token中解析用户ID的逻辑
-        // 这里需要根据实际的token格式和解析方式来实现
-        return 1L; // 临时返回固定值，实际项目中需要实现token解析
+        // TODO: 实现token解析，获取用户ID
+        return 1L;
+    }
+
+    private Long getUserIdFromToken() {
+        // TODO: 实现token解析，获取用户ID
+        return 1L;
     }
 } 
