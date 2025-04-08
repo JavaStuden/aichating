@@ -1,68 +1,28 @@
 App({
   globalData: {
     userInfo: null,
-    apiBaseUrl: 'http://localhost:8888/api',
+    token: null,
+    apiBaseUrl: 'http://localhost:8888',
+    userLocation: null,
     likedProfiles: [],
     matches: [],
-    userLocation: null,
     refreshDiscoverPage: false,
-    refreshMomentsPage: false
+    refreshMatchPage: false
   },
   
   onLaunch: function() {
-    // 获取用户信息
-    wx.getSetting({
-      success: res => {
-        if (res.authSetting['scope.userInfo']) {
-          wx.getUserInfo({
-            success: res => {
-              this.globalData.userInfo = res.userInfo
-              
-              // 登录
-              wx.login({
-                success: loginRes => {
-                  // 发送 code 到后台换取 openId, sessionKey, unionId
-                  if (loginRes.code) {
-                    wx.request({
-                      url: this.globalData.apiBaseUrl + '/login',
-                      data: {
-                        code: loginRes.code,
-                        userInfo: res.userInfo
-                      },
-                      success: result => {
-                        // 保存登录凭证
-                        wx.setStorageSync('token', result.data.token)
-                      }
-                    })
-                  }
-                }
-              })
-            }
-          })
-        }
-      }
-    })
+    // 从本地存储中恢复数据
+    this.globalData.token = wx.getStorageSync('token') || null
+    this.globalData.userInfo = wx.getStorageSync('userInfo') || null
     
-    // 获取位置权限
-    wx.getSetting({
-      success: res => {
-        if (!res.authSetting['scope.userLocation']) {
-          wx.authorize({
-            scope: 'scope.userLocation',
-            success: () => {
-              this.getLocation()
-            }
-          })
-        } else {
-          this.getLocation()
-        }
-      }
-    })
+    // 获取用户位置
+    this.getUserLocation()
   },
   
-  getLocation: function() {
+  // 获取用户位置
+  getUserLocation: function() {
     wx.getLocation({
-      type: 'wgs84',
+      type: 'gcj02',
       success: res => {
         this.globalData.userLocation = {
           latitude: res.latitude,
@@ -70,5 +30,25 @@ App({
         }
       }
     })
+  },
+  
+  // 保存登录信息
+  saveLoginInfo: function(token, userInfo) {
+    this.globalData.token = token
+    this.globalData.userInfo = userInfo
+    
+    // 保存到本地存储
+    wx.setStorageSync('token', token)
+    wx.setStorageSync('userInfo', userInfo)
+  },
+  
+  // 清除登录信息
+  clearLoginInfo: function() {
+    this.globalData.token = null
+    this.globalData.userInfo = null
+    
+    // 清除本地存储
+    wx.removeStorageSync('token')
+    wx.removeStorageSync('userInfo')
   }
 }) 

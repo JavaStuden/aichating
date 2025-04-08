@@ -60,7 +60,7 @@ public interface ISysUserService
     public SysUser selectUserByEmail(String email);
 
     /**
-     * 通过用户ID查询用户
+     * 根据用户ID查询用户
      * 
      * @param userId 用户ID
      * @return 用户对象信息
@@ -109,7 +109,7 @@ public interface ISysUserService
     public boolean registerUser(SysUser user);
 
     /**
-     * 保存用户信息
+     * 更新用户信息
      * 
      * @param user 用户信息
      * @return 结果
@@ -211,4 +211,19 @@ public interface ISysUserService
      * @return 结果
      */
     public int changeStatus(SysUser user);
+
+    /**
+     * 获取推荐用户列表
+     */
+    List<SysUser> selectRecommendUsers(Long userId, Double latitude, Double longitude);
+
+    /**
+     * 喜欢用户
+     */
+    boolean likeUser(Long userId, Long targetUserId);
+
+    /**
+     * 不喜欢用户
+     */
+    void dislikeUser(Long userId, Long targetUserId);
 }

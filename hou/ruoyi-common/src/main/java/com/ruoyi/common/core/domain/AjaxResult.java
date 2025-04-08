@@ -56,27 +56,15 @@ public class AjaxResult extends HashMap<String, Object>
     /**
      * 初始化一个新创建的 AjaxResult 对象
      *
-     * @param type 状态类型
-     * @param msg 返回内容
-     */
-    public AjaxResult(Type type, String msg)
-    {
-        super.put(CODE_TAG, type.value);
-        super.put(MSG_TAG, msg);
-    }
-
-    /**
-     * 初始化一个新创建的 AjaxResult 对象
-     *
-     * @param type 状态类型
+     * @param code 状态码
      * @param msg 返回内容
      * @param data 数据对象
      */
-    public AjaxResult(Type type, String msg, Object data)
+    public AjaxResult(int code, String msg, Object data)
     {
-        super.put(CODE_TAG, type.value);
+        super.put(CODE_TAG, code);
         super.put(MSG_TAG, msg);
-        if (StringUtils.isNotNull(data))
+        if (data != null)
         {
             super.put(DATA_TAG, data);
         }
@@ -122,7 +110,7 @@ public class AjaxResult extends HashMap<String, Object>
      */
     public static AjaxResult success(String msg, Object data)
     {
-        return new AjaxResult(Type.SUCCESS, msg, data);
+        return new AjaxResult(200, msg, data);
     }
 
     /**
@@ -145,13 +133,13 @@ public class AjaxResult extends HashMap<String, Object>
      */
     public static AjaxResult warn(String msg, Object data)
     {
-        return new AjaxResult(Type.WARN, msg, data);
+        return new AjaxResult(Type.WARN.value, msg, data);
     }
 
     /**
      * 返回错误消息
      *
-     * @return
+     * @return 错误消息
      */
     public static AjaxResult error()
     {
@@ -162,7 +150,7 @@ public class AjaxResult extends HashMap<String, Object>
      * 返回错误消息
      *
      * @param msg 返回内容
-     * @return 警告消息
+     * @return 错误消息
      */
     public static AjaxResult error(String msg)
     {
@@ -174,11 +162,11 @@ public class AjaxResult extends HashMap<String, Object>
      *
      * @param msg 返回内容
      * @param data 数据对象
-     * @return 警告消息
+     * @return 错误消息
      */
     public static AjaxResult error(String msg, Object data)
     {
-        return new AjaxResult(Type.ERROR, msg, data);
+        return new AjaxResult(Type.ERROR.value, msg, data);
     }
 
     /**

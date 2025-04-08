@@ -35,6 +35,7 @@ import com.ruoyi.system.mapper.SysUserRoleMapper;
 import com.ruoyi.system.service.ISysConfigService;
 import com.ruoyi.system.service.ISysDeptService;
 import com.ruoyi.system.service.ISysUserService;
+import java.util.Comparator;
 
 /**
  * 用户 业务层处理
@@ -564,5 +565,96 @@ public class SysUserServiceImpl implements ISysUserService
     public int changeStatus(SysUser user)
     {
         return userMapper.updateUser(user);
+    }
+
+    /**
+     * 获取推荐用户列表
+     */
+    @Override
+    public List<SysUser> selectRecommendUsers(Long userId, Double latitude, Double longitude) {
+        // 查询条件，排除自己
+        SysUser queryUser = new SysUser();
+        queryUser.setDelFlag("0"); // 未删除的用户
+
+        // 获取用户列表（实际项目中应该根据地理位置、兴趣爱好等进行推荐）
+        List<SysUser> userList = userMapper.selectUserList(queryUser);
+        
+        // 过滤掉自己
+        userList = userList.stream()
+                .filter(user -> !user.getUserId().equals(userId))
+                .collect(Collectors.toList());
+        
+        // 计算距离（如果有经纬度信息）
+        if (latitude != null && longitude != null) {
+            for (SysUser user : userList) {
+                if (user.getLatitude() != null && user.getLongitude() != null) {
+                    // 计算两点之间的距离
+                    double distance = calculateDistance(latitude, longitude, 
+                                                      user.getLatitude(), user.getLongitude());
+                    // 设置距离
+                    user.setDistance(distance);
+                }
+            }
+            
+            // 按距离排序
+            userList.sort(Comparator.comparing(SysUser::getDistance, Comparator.nullsLast(Comparator.naturalOrder())));
+        }
+        
+        return userList;
+    }
+
+    /**
+     * 喜欢用户
+     */
+    @Override
+    public boolean likeUser(Long userId, Long targetUserId) {
+        // 添加喜欢记录
+        // TODO: 实际项目中需要添加到数据库
+        
+        // 判断是否匹配（对方是否也喜欢了自己）
+        // TODO: 查询对方是否喜欢了自己
+        boolean isMatch = false;
+        
+        return isMatch;
+    }
+
+    /**
+     * 不喜欢用户
+     */
+    @Override
+    public void dislikeUser(Long userId, Long targetUserId) {
+        // 添加不喜欢记录
+        // TODO: 实际项目中需要添加到数据库
+    }
+
+    /**
+     * 计算两点之间的距离（使用Haversine公式）
+     * @param lat1 第一点的纬度
+     * @param lon1 第一点的经度
+     * @param lat2 第二点的纬度
+     * @param lon2 第二点的经度
+     * @return 距离（单位：公里）
+     */
+    private double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+        // 地球半径（公里）
+        final double R = 6371.0;
+        
+        // 将经纬度转换为弧度
+        double latRad1 = Math.toRadians(lat1);
+        double lonRad1 = Math.toRadians(lon1);
+        double latRad2 = Math.toRadians(lat2);
+        double lonRad2 = Math.toRadians(lon2);
+        
+        // Haversine公式
+        double dLat = latRad2 - latRad1;
+        double dLon = lonRad2 - lonRad1;
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                   Math.cos(latRad1) * Math.cos(latRad2) *
+                   Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        double distance = R * c;
+        
+        // 保留一位小数
+        return Math.round(distance * 10) / 10.0;
     }
 }
