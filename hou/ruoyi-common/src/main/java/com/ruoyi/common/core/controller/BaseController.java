@@ -184,7 +184,7 @@ public class BaseController
      */
     public AjaxResult error(Type type, String message)
     {
-        return new AjaxResult(type, message);
+        return new AjaxResult(type.value(), message, null);
     }
 
     /**

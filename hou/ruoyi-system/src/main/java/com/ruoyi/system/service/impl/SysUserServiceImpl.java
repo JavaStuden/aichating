@@ -200,7 +200,9 @@ public class SysUserServiceImpl implements ISysUserService
         Long[] userIds = Convert.toLongArray(ids);
         for (Long userId : userIds)
         {
-            checkUserAllowed(new SysUser(userId));
+            SysUser user = new SysUser();
+            user.setUserId(userId);
+            checkUserAllowed(user);
             checkUserDataScope(userId);
         }
         // 删除用户与角色关联
@@ -364,7 +366,7 @@ public class SysUserServiceImpl implements ISysUserService
     public boolean checkLoginNameUnique(SysUser user)
     {
         Long userId = StringUtils.isNull(user.getUserId()) ? -1L : user.getUserId();
-        SysUser info = userMapper.checkLoginNameUnique(user.getLoginName());
+        SysUser info = userMapper.checkLoginNameUnique(user.getUserName());
         if (StringUtils.isNotNull(info) && info.getUserId().longValue() != userId.longValue())
         {
             return UserConstants.NOT_UNIQUE;
@@ -500,17 +502,17 @@ public class SysUserServiceImpl implements ISysUserService
             try
             {
                 // 验证是否存在这个用户
-                SysUser u = userMapper.selectUserByLoginName(user.getLoginName());
+                SysUser u = userMapper.selectUserByLoginName(user.getUserName());
                 if (StringUtils.isNull(u))
                 {
                     BeanValidators.validateWithException(validator, user);
                     deptService.checkDeptDataScope(user.getDeptId());
                     String password = configService.selectConfigByKey("sys.user.initPassword");
-                    user.setPassword(Md5Utils.hash(user.getLoginName() + password));
+                    user.setPassword(Md5Utils.hash(user.getUserName() + password));
                     user.setCreateBy(operName);
                     userMapper.insertUser(user);
                     successNum++;
-                    successMsg.append("<br/>" + successNum + "、账号 " + user.getLoginName() + " 导入成功");
+                    successMsg.append("<br/>" + successNum + "、账号 " + user.getUserName() + " 导入成功");
                 }
                 else if (isUpdateSupport)
                 {
@@ -522,23 +524,23 @@ public class SysUserServiceImpl implements ISysUserService
                     user.setUpdateBy(operName);
                     userMapper.updateUser(user);
                     successNum++;
-                    successMsg.append("<br/>" + successNum + "、账号 " + user.getLoginName() + " 更新成功");
+                    successMsg.append("<br/>" + successNum + "、账号 " + user.getUserName() + " 更新成功");
                 }
                 else
                 {
                     failureNum++;
-                    failureMsg.append("<br/>" + failureNum + "、账号 " + user.getLoginName() + " 已存在");
+                    failureMsg.append("<br/>" + failureNum + "、账号 " + user.getUserName() + " 已存在");
                 }
             }
             catch (Exception e)
             {
                 failureNum++;
-                String loginName = user.getLoginName();
+                String userName = user.getUserName();
                 if (ExceptionUtil.isCausedBy(e, ConstraintViolationException.class))
                 {
-                    loginName = EscapeUtil.clean(loginName);
+                    userName = EscapeUtil.clean(userName);
                 }
-                String msg = "<br/>" + failureNum + "、账号 " + loginName + " 导入失败：";
+                String msg = "<br/>" + failureNum + "、账号 " + userName + " 导入失败：";
                 failureMsg.append(msg + e.getMessage());
                 log.error(msg, e);
             }
