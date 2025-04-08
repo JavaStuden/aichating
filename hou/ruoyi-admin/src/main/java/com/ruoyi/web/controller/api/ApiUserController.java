@@ -103,9 +103,7 @@ public class ApiUserController {
     @PostMapping("/like")
     @ResponseBody
     public AjaxResult likeUser(@RequestParam("targetUserId") Long targetUserId) {
-        Long userId = getUserIdFromToken();
-        boolean isMatch = userMatchController.likeUser(userId, targetUserId);
-        return AjaxResult.success().put("isMatch", isMatch);
+        return userMatchController.likeUser(targetUserId);
     }
 
     /**
