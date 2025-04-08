@@ -152,7 +152,7 @@ public class UserMatchController extends BaseController
     /**
      * 获取当前登录用户ID（实际项目中应从登录信息中获取）
      */
-    private Long getUserId()
+    public Long getUserId()
     {
         // TODO: 从登录信息中获取当前用户ID
         // 这里暂时返回1作为示例
