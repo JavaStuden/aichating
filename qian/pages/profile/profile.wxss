@@ -176,6 +176,7 @@
 .tags-grid {
   display: flex;
   flex-wrap: wrap;
+  margin-top: 20rpx;
 }
 
 .tag-item {
@@ -185,6 +186,11 @@
   padding: 12rpx 30rpx;
   margin: 10rpx;
   font-size: 24rpx;
+  transition: all 0.3s;
+}
+
+.tag-item-hover {
+  transform: scale(1.05);
 }
 
 .tag-item.selected {

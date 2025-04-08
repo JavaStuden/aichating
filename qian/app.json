@@ -24,26 +24,26 @@
       {
         "pagePath": "pages/discover/discover",
         "text": "发现",
-        "iconPath": "images/discover.png",
-        "selectedIconPath": "images/discover_selected.png"
+        "iconPath": "images/tab/discover.png",
+        "selectedIconPath": "images/tab/discover_selected.png"
       },
       {
         "pagePath": "pages/match/match",
         "text": "匹配",
-        "iconPath": "images/match.png",
-        "selectedIconPath": "images/match_selected.png"
+        "iconPath": "images/tab/match.png",
+        "selectedIconPath": "images/tab/match_selected.png"
       },
       {
         "pagePath": "pages/moments/moments",
         "text": "动态",
-        "iconPath": "images/moments.png",
-        "selectedIconPath": "images/moments_selected.png"
+        "iconPath": "images/tab/moments.png",
+        "selectedIconPath": "images/tab/moments_selected.png"
       },
       {
         "pagePath": "pages/profile/profile",
         "text": "我的",
-        "iconPath": "images/profile.png",
-        "selectedIconPath": "images/profile_selected.png"
+        "iconPath": "images/tab/profile.png",
+        "selectedIconPath": "images/tab/profile_selected.png"
       }
     ]
   },

@@ -141,30 +141,35 @@ Page({
 
   // 添加/移除标签
   toggleTag: function(e) {
-    const tag = e.currentTarget.dataset.tag
-    const selectedTags = [...this.data.selectedTags]
+    console.log('标签点击事件触发', e);
+    const tag = e.currentTarget.dataset.tag;
+    const selectedTags = [...this.data.selectedTags];
     
-    const index = selectedTags.indexOf(tag)
+    const index = selectedTags.indexOf(tag);
     
     if (index > -1) {
       // 移除标签
-      selectedTags.splice(index, 1)
+      selectedTags.splice(index, 1);
+      console.log('移除标签:', tag);
     } else {
       // 添加标签，最多选择5个
       if (selectedTags.length < 5) {
-        selectedTags.push(tag)
+        selectedTags.push(tag);
+        console.log('添加标签:', tag);
       } else {
         wx.showToast({
           title: '最多选择5个标签',
           icon: 'none'
-        })
-        return
+        });
+        return;
       }
     }
     
     this.setData({
       selectedTags
-    })
+    }, () => {
+      console.log('更新后的标签列表:', this.data.selectedTags);
+    });
   },
 
   // 选择照片
