@@ -145,9 +145,16 @@
   margin: 0 30rpx;
 }
 
-.action-button image {
-  width: 60%;
-  height: 60%;
+.icon-x {
+  font-size: 50rpx;
+  color: #FF4D67;
+  font-weight: bold;
+}
+
+.icon-check {
+  font-size: 50rpx;
+  color: #fff;
+  font-weight: bold;
 }
 
 .dislike {
