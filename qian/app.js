@@ -1,7 +1,7 @@
 App({
   globalData: {
     userInfo: null,
-    apiBaseUrl: 'https://your-api-domain.com/api',
+    apiBaseUrl: 'http://localhost:8888/api',
     likedProfiles: [],
     matches: [],
     userLocation: null,
