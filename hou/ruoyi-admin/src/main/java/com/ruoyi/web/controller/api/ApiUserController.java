@@ -6,36 +6,22 @@ import com.ruoyi.system.domain.SysUserProfile;
 import com.ruoyi.system.service.ISysUserService;
 import com.ruoyi.system.service.ISysUserProfileService;
 import com.ruoyi.web.controller.dating.UserMatchController;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 /**
  * 用户信息API接口
  */
-@RestController
-@RequestMapping("/api/users")
 public class ApiUserController {
 
-    private static final Logger log = LoggerFactory.getLogger(ApiUserController.class);
-
-    @Autowired
     private ISysUserService userService;
-
-    @Autowired
     private ISysUserProfileService userProfileService;
-
-    @Autowired
     private UserMatchController userMatchController;
 
     /**
      * 获取用户资料
      */
-    @GetMapping("/profile")
-    public AjaxResult getProfile(@RequestHeader("Authorization") String token) {
+    public AjaxResult getProfile(String token) {
         // 从token中获取用户ID
         Long userId = getUserIdFromToken(token);
         if (userId == null) {
@@ -55,8 +41,7 @@ public class ApiUserController {
     /**
      * 更新用户资料
      */
-    @PostMapping("/profile")
-    public AjaxResult updateProfile(@RequestHeader("Authorization") String token, @RequestBody SysUser user) {
+    public AjaxResult updateProfile(String token, SysUser user) {
         try {
             // 从token中获取用户ID
             Long userId = getUserIdFromToken(token);
@@ -82,7 +67,6 @@ public class ApiUserController {
             int rows = userProfileService.updateSysUserProfile(existingProfile);
             return rows > 0 ? AjaxResult.success() : AjaxResult.error("更新失败");
         } catch (Exception e) {
-            log.error("更新用户资料时发生错误", e);
             return AjaxResult.error("更新失败：" + e.getMessage());
         }
     }
@@ -90,10 +74,7 @@ public class ApiUserController {
     /**
      * 获取推荐用户列表
      */
-    @GetMapping("/recommend")
-    public AjaxResult getRecommendUsers(@RequestHeader("Authorization") String token,
-                                      @RequestParam(required = false) Double latitude,
-                                      @RequestParam(required = false) Double longitude) {
+    public AjaxResult getRecommendUsers(String token, Double latitude, Double longitude) {
         // 从token中获取用户ID
         Long userId = getUserIdFromToken(token);
         if (userId == null) {
@@ -108,17 +89,14 @@ public class ApiUserController {
     /**
      * 喜欢用户
      */
-    @PostMapping("/like")
-    @ResponseBody
-    public AjaxResult likeUser(@RequestParam("targetUserId") Long targetUserId) {
+    public AjaxResult likeUser(Long targetUserId) {
         return userMatchController.likeUser(targetUserId);
     }
 
     /**
      * 不喜欢用户
      */
-    @PostMapping("/dislike")
-    public AjaxResult dislikeUser(@RequestHeader("Authorization") String token, @RequestParam Long targetUserId) {
+    public AjaxResult dislikeUser(String token, Long targetUserId) {
         // 从token中获取用户ID
         Long userId = getUserIdFromToken(token);
         if (userId == null) {
@@ -134,12 +112,12 @@ public class ApiUserController {
      * 从token中获取用户ID（实际项目中需要实现）
      */
     private Long getUserIdFromToken(String token) {
-        // TODO: 实现token解析，获取用户ID
+        // 简化实现，返回固定值
         return 1L;
     }
 
     private Long getUserIdFromToken() {
-        // TODO: 实现token解析，获取用户ID
+        // 简化实现，返回固定值
         return 1L;
     }
 } 
