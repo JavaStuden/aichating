@@ -1,13 +1,12 @@
 {
   "pages": [
     "pages/index/index",
+    "pages/moments/moments",
+    "pages/publishMoment/publishMoment",
+    "pages/momentDetail/momentDetail",
     "pages/discover/discover",
     "pages/match/match",
-    "pages/moments/moments",
-    "pages/profile/profile",
-    "pages/chat/chat",
-    "pages/userDetail/userDetail",
-    "pages/publishMoment/publishMoment"
+    "pages/profile/profile"
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -48,5 +47,8 @@
     ]
   },
   "style": "v2",
-  "sitemapLocation": "sitemap.json"
+  "sitemapLocation": "sitemap.json",
+  "usingComponents": {
+    "emoji-picker": "/components/emoji-picker/emoji-picker"
+  }
 } 

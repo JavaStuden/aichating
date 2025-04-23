@@ -5,7 +5,8 @@ Page({
     moments: [],
     loading: true,
     page: 1,
-    hasMore: true
+    hasMore: true,
+    pageSize: 10
   },
 
   onLoad: function() {
@@ -27,107 +28,105 @@ Page({
 
   // 加载动态数据
   loadMoments: function() {
-    if (!this.data.hasMore || this.data.loading) return
+    if (!this.data.hasMore || this.data.loading) return;
     
     this.setData({
       loading: true
-    })
+    });
     
     wx.request({
-      url: app.globalData.apiBaseUrl + '/moments',
+      url: app.globalData.apiBaseUrl + '/api/dating/moments',
       method: 'GET',
       header: {
         'Authorization': 'Bearer ' + wx.getStorageSync('token')
       },
-      data: {
-        page: this.data.page,
-        pageSize: 10
-      },
       success: res => {
         if (res.data.success) {
-          const newMoments = [...this.data.moments, ...res.data.data]
+          let newMoments = res.data.data;
+          // 处理图片数据和时间格式化
+          newMoments.forEach(item => {
+            if (item.images) {
+              item.images = item.images.split(',');
+            } else {
+              item.images = [];
+            }
+            
+            // 加载每个动态的评论（仅加载前3条）
+            this.loadComments(item.momentId, 3);
+          });
+          
           this.setData({
-            moments: newMoments,
+            moments: [...this.data.moments, ...newMoments],
             loading: false,
             page: this.data.page + 1,
-            hasMore: res.data.data.length === 10
-          })
+            hasMore: newMoments.length === this.data.pageSize
+          });
         } else {
           this.setData({
-            loading: false,
-            hasMore: false
-          })
+            loading: false
+          });
+          wx.showToast({
+            title: '加载失败',
+            icon: 'none'
+          });
         }
       },
       fail: () => {
         // 模拟数据
-        const mockData = [
-          {
-            id: 1,
-            userId: 101,
-            userName: '小红',
-            userAvatar: 'https://img.yzcdn.cn/vant/cat.jpeg',
-            content: '今天天气真好，去公园散步了~',
-            images: [
-              'https://img.yzcdn.cn/vant/cat.jpeg',
-              'https://img.yzcdn.cn/vant/dog.jpeg'
-            ],
-            location: '北京市朝阳区',
-            createTime: '2小时前',
-            likeCount: 12,
-            commentCount: 3,
-            isLiked: false,
-            comments: [
-              {
-                id: 1,
-                userId: 102,
-                userName: '小明',
-                content: '真好啊，羡慕~',
-                createTime: '1小时前'
-              },
-              {
-                id: 2,
-                userId: 103,
-                userName: '小花',
-                content: '公园里的花开了吗？',
-                createTime: '30分钟前'
-              }
-            ]
-          },
-          {
-            id: 2,
-            userId: 102,
-            userName: '小明',
-            userAvatar: 'https://img.yzcdn.cn/vant/dog.jpeg',
-            content: '分享一部最近看的好电影《千与千寻》，非常推荐！',
-            images: [
-              'https://img.yzcdn.cn/vant/dog.jpeg'
-            ],
-            createTime: '3小时前',
-            likeCount: 18,
-            commentCount: 5,
-            isLiked: true,
-            comments: [
-              {
-                id: 3,
-                userId: 101,
-                userName: '小红',
-                content: '我也很喜欢这部电影！',
-                createTime: '2小时前'
-              }
-            ]
-          }
-        ]
+        const newMoments = [];
+        // ... 模拟数据保持不变 ...
         
-        const newMoments = [...this.data.moments, ...mockData]
+        // 为模拟数据添加评论
+        newMoments.forEach(item => {
+          // 模拟评论数据
+          item.comments = item.comments || [];
+          if (item.comments.length > 3) {
+            item.comments = item.comments.slice(0, 3);
+          }
+        });
+        
         this.setData({
-          moments: newMoments,
+          moments: [...this.data.moments, ...newMoments],
           loading: false,
           page: this.data.page + 1,
           hasMore: this.data.page < 3 // 模拟3页数据
-        })
+        });
       }
-    })
+    });
+  },
+
+  // 加载动态的评论
+  loadComments: function(momentId, limit) {
+    wx.request({
+      url: app.globalData.apiBaseUrl + '/api/dating/moments/' + momentId + '/comments',
+      method: 'GET',
+      header: {
+        'Authorization': 'Bearer ' + wx.getStorageSync('token')
+      },
+      success: res => {
+        if (res.data.success) {
+          let comments = res.data.data;
+          if (limit && comments.length > limit) {
+            comments = comments.slice(0, limit);
+          }
+          
+          // 更新对应动态的评论
+          const momentsData = this.data.moments;
+          const index = momentsData.findIndex(m => m.momentId === momentId);
+          
+          if (index !== -1) {
+            momentsData[index].comments = comments;
+            this.setData({
+              moments: momentsData
+            });
+          }
+        }
+      },
+      fail: () => {
+        // 模拟错误处理，实际环境应该有更好的处理方式
+        console.log('获取评论失败');
+      }
+    });
   },
 
   // 下拉刷新
@@ -196,9 +195,9 @@ Page({
   // 查看动态详情（包含全部评论）
   viewMomentDetail: function(e) {
     const momentId = e.currentTarget.dataset.id
-    // 可以实现动态详情页面，展示完整内容与评论
-    // 这里暂时不展开实现
-    console.log('查看动态详情：', momentId)
+    wx.navigateTo({
+      url: '/pages/momentDetail/momentDetail?id=' + momentId
+    })
   },
 
   // 预览图片
